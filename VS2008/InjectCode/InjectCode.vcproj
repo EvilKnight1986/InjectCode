@@ -316,6 +316,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="..\$(PlatformName)\$(ProjectName)_$(PlatformName)_$(ConfigurationName).exe"
+				GenerateDebugInformation="true"
 				EntryPointSymbol=""
 			/>
 			<Tool
@@ -386,6 +387,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="..\$(PlatformName)\$(ProjectName)_$(PlatformName)_$(ConfigurationName).exe"
+				GenerateDebugInformation="true"
 				EntryPointSymbol=""
 				TargetMachine="17"
 			/>

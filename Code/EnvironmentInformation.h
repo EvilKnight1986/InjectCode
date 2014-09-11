@@ -20,6 +20,9 @@
 
 #include <Windows.h>
 
+// 取得操作系统位数
+ULONG   GetOSBit(VOID) ;
+
 // 取得指定进程位数，32位或者64位，如果不能取到正常的值，返回0
 ULONG   GetProcessBit(__in DWORD dwPID) ;
 
