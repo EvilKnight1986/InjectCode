@@ -30,6 +30,12 @@
     <ClInclude Include="..\..\Code\InjectCode.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Code\ProcessInformation.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Code\ErrorInformation.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Code\stdafx.cpp">
@@ -42,6 +48,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Code\InjectCode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Code\ProcessInformation.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Code\ErrorInformation.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

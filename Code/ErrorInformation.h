@@ -4,7 +4,7 @@
 //  D a t e  : 2014.9.11
 //  作  者 : 
 //  版  本 : 0.1
-//  功  能 : 运行环境相关信息函数
+//  功  能 : 错误信息相关函数
 //  说  明 : 
 //  备  注 :
 //
@@ -15,22 +15,14 @@
 //
 //*************************************************************************
 
-#ifndef ENVIRONMENTINFORMATION__H
-#define ENVIRONMENTINFORMATION__H
+#ifndef ERRORINFORMATION__H
+#define ERRORINFORMATION__H
 
 #include <Windows.h>
 
-// 取得指定进程位数，32位或者64位，如果不能取到正常的值，返回0
-ULONG   GetProcessBit(__in DWORD dwPID) ;
 
-// 取得当前进程的位数
-ULONG   GetMyselfBit(VOID) ;
-
-// 取得可执行文件的位数
-ULONG   GetPEFileBit(__in_z PTCHAR pPEFilePath) ;
-
-// 通过内存中的PE头来取得程序位数
-ULONG   GetBitByPEHeader(__in_bcount(uSize) PVOID *pPE,
-                                                __in ULONG uSize) ;
+// 输出错误信息
+VOID OutputErrorInformation(__in_z PTCHAR pFunctionName,
+                                                __in_z PTCHAR pTipsInformation) ;
 
 #endif

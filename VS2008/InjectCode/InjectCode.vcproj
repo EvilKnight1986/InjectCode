@@ -425,11 +425,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Code\ErrorInformation.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Code\ExeEntry.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\Code\InjectCode.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Code\ProcessInformation.cpp"
 				>
 			</File>
 			<File
@@ -447,11 +455,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Code\ErrorInformation.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Code\InjectCode.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Code\specstrings.h"
+				RelativePath="..\..\Code\ProcessInformation.h"
 				>
 			</File>
 			<File
