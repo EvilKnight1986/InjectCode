@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InjectCode", "InjectCode\InjectCode.vcproj", "{D761F7A4-335A-43EB-944A-B007A997C46D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D761F7A4-335A-43EB-944A-B007A997C46D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D761F7A4-335A-43EB-944A-B007A997C46D}.Debug|Win32.Build.0 = Debug|Win32
+		{D761F7A4-335A-43EB-944A-B007A997C46D}.Release|Win32.ActiveCfg = Release|Win32
+		{D761F7A4-335A-43EB-944A-B007A997C46D}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
