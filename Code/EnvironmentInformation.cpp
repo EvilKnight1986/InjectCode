@@ -16,6 +16,33 @@
 //*************************************************************************
 #include "EnvironmentInformation.h"
 
+typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+
+LPFN_ISWOW64PROCESS fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
+                                        GetModuleHandle(TEXT("kernel32")),"IsWow64Process");
+
+/*******************************************************************************
+*
+*   函 数 名 : GetOSBit
+*  功能描述 : 取得操作系统位数
+*  参数列表 : 无
+*   说      明 : 
+*  返回结果 :  如果成功，返回操作系统位数, 否则返回0
+*
+*******************************************************************************/
+ULONG   GetOSBit(VOID)
+{
+        SYSTEM_INFO si = {0} ;
+        GetNativeSystemInfo(&si) ;
+        if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 ||
+                si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64 )
+        {
+                return 64;
+        }
+        return 32;
+}
+
+
 /*******************************************************************************
 *
 *   函 数 名 : GetProcessBit
@@ -25,7 +52,7 @@
 *  返回结果 :  如果成功，返回进程位数, 否则返回0
 *
 *******************************************************************************/
-ULONG   GetProcessBit(__in DWORD dwPID)
+ULONG   GetProcessBit(__in CONST DWORD dwPID)
 {
         // 可以调用IsWow64Process
         // 或GetProcessImageFileName
@@ -55,7 +82,7 @@ ULONG   GetMyselfBit(VOID)
 *  返回结果 :  返回当前进程位数
 *
 *******************************************************************************/
-ULONG   GetPEFileBit(__in_z PTCHAR pPEFilePath)
+ULONG   GetPEFileBit(__in_z CONST PTCHAR pPEFilePath)
 {
         return 0 ;
 }
@@ -70,8 +97,8 @@ ULONG   GetPEFileBit(__in_z PTCHAR pPEFilePath)
 *  返回结果 :  返回当前进程位数
 *
 *******************************************************************************/
-ULONG   GetBitByPEHeader(__in_bcount(uSize) PVOID *pPE,
-                         __in ULONG uSize)
+ULONG   GetBitByPEHeader(__in_bcount(uSize) CONST PVOID pPE,
+                         __in CONST ULONG uSize)
 {
         // 可以通过IMAGE_NT_OPTIONAL_HDR_MAGIC来判断
         return  0 ;

@@ -22,7 +22,7 @@
 
 
 //  ‰≥ˆ¥ÌŒÛ–≈œ¢
-VOID OutputErrorInformation(__in_z PTCHAR pFunctionName,
-                                                __in_z PTCHAR pTipsInformation) ;
+VOID OutputErrorInformation(__in_z CONST PTCHAR pFunctionName,
+                                                 __in_z CONST PTCHAR pTipsInformation) ;
 
 #endif

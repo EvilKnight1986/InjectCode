@@ -50,11 +50,14 @@
 
 #include "InjectCode.h"
 #include "ProcessInformation.h"
+#include "EnvironmentInformation.h"
 #include <stdio.h>
 #include <Windows.h>
 
 int main(void)
 {
+        ULONG uOSBit = GetOSBit() ;
+
         if (Inject(TEXT("svchost.exe"), TEXT("d:\\hook.dll")))
         {
                 printf ("Inject Success! \r\n") ;

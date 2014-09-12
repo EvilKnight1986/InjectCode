@@ -24,16 +24,16 @@
 ULONG   GetOSBit(VOID) ;
 
 // 取得指定进程位数，32位或者64位，如果不能取到正常的值，返回0
-ULONG   GetProcessBit(__in DWORD dwPID) ;
+ULONG   GetProcessBit(__in CONST DWORD dwPID) ;
 
 // 取得当前进程的位数
 ULONG   GetMyselfBit(VOID) ;
 
 // 取得可执行文件的位数
-ULONG   GetPEFileBit(__in_z PTCHAR pPEFilePath) ;
+ULONG   GetPEFileBit(__in_z CONST PTCHAR pPEFilePath) ;
 
 // 通过内存中的PE头来取得程序位数
-ULONG   GetBitByPEHeader(__in_bcount(uSize) PVOID *pPE,
-                                                __in ULONG uSize) ;
+ULONG   GetBitByPEHeader(__in_bcount(uSize) CONST PVOID pPE,
+                                                __in CONST ULONG uSize) ;
 
 #endif

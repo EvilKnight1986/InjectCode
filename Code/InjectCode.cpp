@@ -11,6 +11,7 @@
 //  修改记录:
 //  日   期       版本    修改人              修改内容
 // 2014/9/11 0.1      EvilKnight        创建
+// 2014/9/12 0.1      EvilKnight        实现Inject by ProcessName函数
 //  YYYY/MM/DD    X.Y     <作者或修改者名>    <修改内容>
 //
 //*************************************************************************
@@ -30,8 +31,8 @@
 *  返回结果 :  如果成功，返回TRUE，失败返回FALSE
 *
 *******************************************************************************/
-BOOL Inject(__in const DWORD dwPID, 
-                        __in_z const PTCHAR pDllPath)
+BOOL Inject(__in CONST DWORD dwPID, 
+                        __in_z CONST PTCHAR pDllPath)
 {
         // 这里要判断系统、自身程序与目标程序以及dll的位数
         // 判断自身的位数与要注入的dll是否有目标进程一致
@@ -64,8 +65,8 @@ BOOL Inject(__in const DWORD dwPID,
 *  返回结果 :  如果全部成功，返回TRUE，有失败返回FALSE
 *
 *******************************************************************************/
-BOOL Inject(__in_z const PTCHAR pProcessName,
-            __in_z const PTCHAR pDllPath)
+BOOL Inject(__in_z CONST PTCHAR pProcessName,
+            __in_z CONST PTCHAR pDllPath)
 {
         ULONG uProcessCount(0) ;
         ULONG  uMemoryLength(0) ;

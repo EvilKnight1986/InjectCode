@@ -30,8 +30,8 @@
 *  返回结果 :     如果成功，返回TRUE，失败返回FALSE
 *
 *******************************************************************************/
-VOID OutputErrorInformation(__in_z PTCHAR pFunctionName,
-                                                __in_z PTCHAR pTipsInformation)
+VOID OutputErrorInformation(__in_z CONST PTCHAR pFunctionName,
+                                                __in_z CONST PTCHAR pTipsInformation)
 {
         TCHAR szBuffer[MAX_PATH] = {0} ;
 
