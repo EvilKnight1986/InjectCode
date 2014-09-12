@@ -35,9 +35,9 @@
 *
 *******************************************************************************/
 ULONG GetProcessListByProcessName(
-                            __in_z PTCHAR pProcessName,
-                            __in_bcount_z_opt(uSize)PDWORD pArrayPID,
-                            __in_opt ULONG uSize)
+                            __in_z const PTCHAR pProcessName,
+                            __in_bcount(uSize) const PDWORD pArrayPID,
+                            __in const ULONG uSize)
 {
         ULONG uProcessCount(0) ;
         HANDLE hProcessSnap = INVALID_HANDLE_VALUE ;

@@ -20,11 +20,11 @@
 #include <Windows.h>
 
 // 将dll注入到指定进程
-BOOL Inject(__in DWORD dwPID,
-                        __in_z PTCHAR pDllPath) ;
+BOOL Inject(__in const DWORD dwPID,
+                        __in_z const PTCHAR pDllPath) ;
 
 // 将dll注入到指定进程名的进程中
-BOOL Inject(__in_z PTCHAR pProcessName,
-                        __in_z PTCHAR pDllPath) ;
+BOOL Inject(__in_z const PTCHAR pProcessName,
+                        __in_z const PTCHAR pDllPath) ;
 
 #endif

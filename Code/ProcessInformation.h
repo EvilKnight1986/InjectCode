@@ -23,9 +23,9 @@
 // 通过进程名取得进程列表
 ULONG
 GetProcessListByProcessName(
-                                  __in_z PTCHAR pProcessName,
-                                   __in_bcount(uSize)PDWORD pArrayPID,
-                                    __in ULONG uSize) ;
+                                  __in_z const PTCHAR pProcessName,
+                                   __in_bcount(uSize) const PDWORD pArrayPID,
+                                    __in const ULONG uSize) ;
 
 #endif
 

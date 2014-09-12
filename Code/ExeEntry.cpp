@@ -55,13 +55,10 @@
 
 int main(void)
 {
-        //if (Inject(TEXT("notepad.exe"), TEXT("d:\\hook.dll")))
-        //{
-        //        printf ("Inject Success! \r\n") ;
-        //}
-        DWORD dwArrayPID[MAX_PATH] = {0} ;
-        ULONG uProcessCount = GetProcessListByProcessName(TEXT("svchost.exe"), NULL, 0) ;
-        uProcessCount = GetProcessListByProcessName(TEXT("svchost.exe"), dwArrayPID, MAX_PATH) ;
+        if (Inject(TEXT("svchost.exe"), TEXT("d:\\hook.dll")))
+        {
+                printf ("Inject Success! \r\n") ;
+        }
         return 0 ;
 }
 

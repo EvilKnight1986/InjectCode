@@ -30,8 +30,8 @@
 *  返回结果 :  如果成功，返回TRUE，失败返回FALSE
 *
 *******************************************************************************/
-BOOL Inject(__in DWORD dwPID, 
-                        __in_z PTCHAR pDllPath)
+BOOL Inject(__in const DWORD dwPID, 
+                        __in_z const PTCHAR pDllPath)
 {
         // 这里要判断系统、自身程序与目标程序以及dll的位数
         // 判断自身的位数与要注入的dll是否有目标进程一致
@@ -64,11 +64,62 @@ BOOL Inject(__in DWORD dwPID,
 *  返回结果 :  如果全部成功，返回TRUE，有失败返回FALSE
 *
 *******************************************************************************/
-BOOL Inject(__in_z PTCHAR pProcessName,
-            __in_z PTCHAR pDllPath)
+BOOL Inject(__in_z const PTCHAR pProcessName,
+            __in_z const PTCHAR pDllPath)
 {
-        // 通过所有相框pProcessName相同的进程名的pid
+        ULONG uProcessCount(0) ;
+        ULONG  uMemoryLength(0) ;
+        BOOL bState(FALSE) ;
+        PDWORD pArrayPID(NULL) ;
+        const ULONG uFree(5) ;         // 多申请一些空间，防止在真正取得进程id的时候
+                                                        // 突然多起了一些进程，但是太过于极端的情况我们
+                                                        // 就不处理了
 
-        // 依次调用Inject(dwPID)去注入
-        return TRUE ;
+        if (NULL == pProcessName)
+        {
+                OutputDebugString(TEXT("Inject:: pProcessName can't NULL! \r\n")) ;
+                return FALSE ;
+        }
+
+        __try
+        {
+                uProcessCount = GetProcessListByProcessName(pProcessName, NULL, 0) ;
+                // 如果一个相同的都没有，直接退出吧！
+                if (0 == uProcessCount)
+                {
+                        __leave ;
+                }
+                
+                uMemoryLength = uProcessCount + uFree ;
+                pArrayPID = new DWORD[uMemoryLength] ;
+                uProcessCount = GetProcessListByProcessName(pProcessName, pArrayPID, uMemoryLength) ;
+
+                // 您的电脑是中毒了吧，要不然程序怎么会启得这么快呢？而且还是同名的程序
+                if (uProcessCount > uMemoryLength)
+                {
+                        __leave ;
+                }
+
+                bState = TRUE ;
+                // 依次调用Inject向目标进程注入dll
+                for (ULONG uIndex(0); uIndex < uProcessCount; ++ uIndex)
+                {
+                        // 如果有一个注入失败，则返回状态为失败
+                        if (! Inject(pArrayPID[uIndex], pDllPath))
+                        {
+                                bState = FALSE ;
+                        }
+                }
+        }
+
+        __finally
+        {
+                if (NULL != pArrayPID)
+                {
+                        delete [] pArrayPID ;
+                        pArrayPID = NULL ;
+                }
+        }
+        
+        return bState ;
 }
