@@ -13,6 +13,7 @@
 // 2014/9/11 0.1      EvilKnight        创建
 // 2014/9/11 0.1      EvilKnight        GeOSBit
 // 2014/9/12 0.1	ray                   GetProcessBit()
+// 2014/9/13 0.1        eoishf          GetPEFileBit()  GetBitByPEHeader()
 //  YYYY/MM/DD    X.Y     <作者或修改者名>    <修改内容>
 //
 //*************************************************************************
@@ -21,6 +22,8 @@
 #include <Psapi.h>
 #include <tchar.h>
 #include <strsafe.h>
+#include <stdio.h>
+#include <stdlib.h>
 #pragma comment(lib, "psapi.lib")
 
 typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
@@ -142,7 +145,44 @@ ULONG   GetMyselfBit(VOID)
 *******************************************************************************/
 ULONG   GetPEFileBit(__in_z CONST PTCHAR pPEFilePath)
 {
-        return 0 ;
+        FILE *peFile = NULL;
+        _wfopen_s(&peFile, pPEFilePath, L"rb");
+        if (NULL == peFile)
+        {
+                fclose(peFile);
+                return 0;
+        }
+
+        PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)malloc(sizeof(IMAGE_DOS_HEADER));
+        if (NULL == pDosHeader)
+        {
+                OutputErrorInformation(L"malloc", L"malloc failed");
+                return 0;
+        }
+
+        //读取PE文件的DOS头
+        fread(pDosHeader, sizeof(IMAGE_DOS_HEADER), 1, peFile);
+        if (pDosHeader->e_magic != IMAGE_DOS_SIGNATURE)
+        {
+                fclose(peFile);
+                return 0;
+        }
+
+        //将文件指针偏移到PE头处
+        fseek(peFile, pDosHeader->e_lfanew, SEEK_SET);
+        free(pDosHeader);
+
+        IMAGE_NT_HEADERS imageNtHeaders;
+        //读取PE头
+        fread(&imageNtHeaders, sizeof(IMAGE_NT_HEADERS), 1, peFile);
+        if (imageNtHeaders.Signature != IMAGE_NT_SIGNATURE)
+        {
+                fclose(peFile);
+                return 0;
+        }
+        fclose(peFile);
+
+        return GetBitByPEHeader(&imageNtHeaders, sizeof(IMAGE_NT_HEADERS));
 }
 
 /*******************************************************************************
@@ -158,7 +198,23 @@ ULONG   GetPEFileBit(__in_z CONST PTCHAR pPEFilePath)
 ULONG   GetBitByPEHeader(__in_bcount(uSize) CONST PVOID pPE,
                          __in CONST ULONG uSize)
 {
-        // 可以通过IMAGE_NT_OPTIONAL_HDR_MAGIC来判断
+        if (NULL == pPE)
+        {
+                return 0;
+        }
+
+        IMAGE_NT_HEADERS *pNtHeader = (IMAGE_NT_HEADERS *)pPE;
+        if (pNtHeader->FileHeader.Machine == IMAGE_NT_OPTIONAL_HDR32_MAGIC)
+        {
+                return 32;
+        }
+
+        if (pNtHeader->FileHeader.Machine == IMAGE_NT_OPTIONAL_HDR64_MAGIC)
+        {
+                return 64;
+        }
+
+        //如果为IMAGE_ROM_OPTIONAL_HDR_MAGIC，返回0
         return  0 ;
 }
 
