@@ -20,7 +20,6 @@
 
 #include <Windows.h>
 
-
 // Êä³ö´íÎóÐÅÏ¢
 VOID OutputErrorInformation(__in_z CONST PTCHAR pFunctionName,
                                                  __in_z CONST PTCHAR pTipsInformation) ;

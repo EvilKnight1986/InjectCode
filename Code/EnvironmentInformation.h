@@ -36,4 +36,8 @@ ULONG   GetPEFileBit(__in_z CONST PTCHAR pPEFilePath) ;
 ULONG   GetBitByPEHeader(__in_bcount(uSize) CONST PVOID pPE,
                                                 __in CONST ULONG uSize) ;
 
+// 逻辑路径转化成NT路径
+BOOL VolumeDeviceToNtPath(__in_z LPCTSTR lpszDevicePath,
+                          __inout_z LPWSTR lpszFilePath) ;
+
 #endif

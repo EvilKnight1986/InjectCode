@@ -57,6 +57,7 @@
 int main(void)
 {
         ULONG uOSBit = GetOSBit() ;
+        ULONG uProcessBit = GetProcessBit(3088) ;
 
         if (Inject(TEXT("svchost.exe"), TEXT("d:\\hook.dll")))
         {
