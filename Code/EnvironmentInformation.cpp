@@ -2,18 +2,18 @@
 //  
 //  Copyright (c) all 2014  All rights reserved
 //  D a t e  : 2014.9.11
-//  ��  �� : 
-//  ��  �� : 0.1
-//  ��  �� : ���л��������Ϣ����
-//  ˵  �� : 
-//  ��  ע :
+//  作  者 : 
+//  版  本 : 0.1
+//  功  能 : 运行环境相关信息函数
+//  说  明 : 
+//  备  注 :
 //
-//  �޸ļ�¼:
-//  ��   ��       �汾    �޸���              �޸�����
-// 2014/9/11 0.1      EvilKnight        ����
+//  修改记录:
+//  日   期       版本    修改人              修改内容
+// 2014/9/11 0.1      EvilKnight        创建
 // 2014/9/11 0.1      EvilKnight        GeOSBit
 // 2014/9/12 0.1	ray                   GetProcessBit()
-//  YYYY/MM/DD    X.Y     <���߻��޸�����>    <�޸�����>
+//  YYYY/MM/DD    X.Y     <作者或修改者名>    <修改内容>
 //
 //*************************************************************************
 #include "EnvironmentInformation.h"
@@ -30,11 +30,11 @@ LPFN_ISWOW64PROCESS fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
 
 /*******************************************************************************
 *
-*   �� �� �� : GetOSBit
-*  �������� : ȡ�ò���ϵͳλ��
-*  �����б� : ��
-*   ˵      �� : 
-*  ���ؽ�� :  ����ɹ������ز���ϵͳλ��, ���򷵻�0
+*   函 数 名 : GetOSBit
+*  功能描述 : 取得操作系统位数
+*  参数列表 : 无
+*   说      明 : 
+*  返回结果 :  如果成功，返回操作系统位数, 否则返回0
 *
 *******************************************************************************/
 ULONG   GetOSBit(VOID)
@@ -52,11 +52,11 @@ ULONG   GetOSBit(VOID)
 
 /*******************************************************************************
 *
-*   �� �� �� : GetProcessBit
-*  �������� : ȡ��ָ������λ��
-*  �����б� : dwPID          --             Ŀ�����ID
-*   ˵      �� : 
-*  ���ؽ�� :  ����ɹ������ؽ���λ��, ���򷵻�0
+*   函 数 名 : GetProcessBit
+*  功能描述 : 取得指定进程位数
+*  参数列表 : dwPID          --             目标进程ID
+*   说      明 : 
+*  返回结果 :  如果成功，返回进程位数, 否则返回0
 *
 *******************************************************************************/
 ULONG   GetProcessBit(__in CONST DWORD dwPID)
@@ -79,27 +79,27 @@ ULONG   GetProcessBit(__in CONST DWORD dwPID)
                         __leave ;
                 }
 
-                // ���Ե���IsWow64Process
+                // 可以调用IsWow64Process
                 //if (NULL != fnIsWow64Process)
                 //{
-                //        // ����ɹ��ˣ�����
+                //        // 如果成功了，闪人
                 //        if (fnIsWow64Process(hProcess, &bIsWow64))
                 //        {
-                //                // ���bIsWow64����TRUE�Ļ���˵��������WOW64�£�Ϊ32λ
+                //                // 如果bIsWow64等于TRUE的话，说明运行在WOW64下，为32位
                 //                uResult = bIsWow64 ? 32:64 ;
                 //                __leave ;
                 //        }
                 //}
 
-                // ��GetProcessImageFileName
-                // QueryFullProcessImageNameֻ֧��vista�Լ�֮���ϵͳ
+                // 或GetProcessImageFileName
+                // QueryFullProcessImageName只支持vista以及之后的系统
                 if(0 == GetProcessImageFileName(hProcess, szDriveName, MAX_PATH))
                 {
                         OutputErrorInformation(TEXT("GetProcessBit"), TEXT("GetModuleFileNameEx")) ;
                         __leave ;
                 }
 
-                // ������Ҫת��·��
+                // 这里你要转换路径
                 if(VolumeDeviceToNtPath(szDriveName, szFileName))
                 {
                         uResult = GetPEFileBit(szFileName) ;
@@ -119,11 +119,11 @@ ULONG   GetProcessBit(__in CONST DWORD dwPID)
 
 /*******************************************************************************
 *
-*   �� �� �� : GetMyselfBit
-*  �������� : ȡ�õ�ǰ���̵�λ��
-*  �����б� : ��
-*   ˵      �� : ��
-*  ���ؽ�� :  ���ص�ǰ����λ��
+*   函 数 名 : GetMyselfBit
+*  功能描述 : 取得当前进程的位数
+*  参数列表 : 无
+*   说      明 : 无
+*  返回结果 :  返回当前进程位数
 *
 *******************************************************************************/
 ULONG   GetMyselfBit(VOID)
@@ -133,43 +133,81 @@ ULONG   GetMyselfBit(VOID)
 
 /*******************************************************************************
 *
-*   �� �� �� : GetPEFileBit
-*  �������� : ȡ�ÿ�ִ���ļ���λ��
-*  �����б� : pPEFilePath  --     pe�ļ�·��
-*   ˵      �� : ��pe�ļ���ͷ���ڴ棬�ٵ���GetBitByPEHeaderȥ�ж�
-*  ���ؽ�� :  ���ص�ǰ����λ��
+*   函 数 名 : GetPEFileBit
+*  功能描述 : 取得可执行文件的位数
+*  参数列表 : pPEFilePath  --     pe文件路径
+*   说      明 : 读pe文件的头进内存，再调用GetBitByPEHeader去判断
+*  返回结果 :  返回当前进程位数
 *
 *******************************************************************************/
 ULONG   GetPEFileBit(__in_z CONST PTCHAR pPEFilePath)
 {
-        return 0 ;
+        ULONG uResult =  0 ;
+        HANDLE hFile = CreateFile(pPEFilePath, GENERIC_READ, 0, NULL, OPEN_ALWAYS, 0, NULL);
+        if (hFile != NULL)
+        {
+                HANDLE hMap = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, 0);
+                LPCTSTR pMapping = (LPTSTR)MapViewOfFile(hMap, FILE_MAP_READ, 0, 0, 0);
+                IMAGE_DOS_HEADER *idh = (IMAGE_DOS_HEADER*)pMapping;
+                if (idh->e_magic == IMAGE_DOS_SIGNATURE)
+                {
+                        printf("dos headers found\n");
+                        IMAGE_NT_HEADERS *inh = (IMAGE_NT_HEADERS*)((DWORD)pMapping+idh->e_lfanew);
+                        if (inh->Signature == IMAGE_NT_SIGNATURE)
+                        {
+                                printf("nt headers found\n");
+
+                                // IMAGE_FILE_HEADER structure: http://msdn.microsoft.com/en-us/library/windows/desktop/ms680313(v=vs.85).aspx
+                                switch(inh->FileHeader.Machine)
+                                {
+                                case 0x014c:
+                                        uResult = 32;
+                                        break;
+                                case 0x8664:
+                                        uResult = 64;
+                                        break;
+                                default:
+                                        uResult = 0;//0 stands for Intel Itanium
+                                        break;
+                                }
+                                //GetBitByPEHeader();
+
+                        }
+                }
+                CloseHandle(hFile); 
+        }
+
+
+
+        return uResult ;
 }
+
 
 /*******************************************************************************
 *
-*   �� �� �� : GetBitByPEHeader
-*  �������� :ͨ���ڴ��е�PEͷ��ȡ�ó���λ��
-*  �����б� : pPE  --     ָ��洢peͷ���ڴ���ʼ��ַ
-*                   uSize  --  ָ���洢peͷ�ڴ������С
-*   ˵      �� : ��pe�ļ���ͷ���ڴ棬�ٵ���GetBitByPEHeaderȥ�ж�
-*  ���ؽ�� :  ���ص�ǰ����λ��
+*   函 数 名 : GetBitByPEHeader
+*  功能描述 :通过内存中的PE头来取得程序位数
+*  参数列表 : pPE  --     指向存储pe头的内存起始地址
+*                   uSize  --  指明存储pe头内存区域大小
+*   说      明 : 读pe文件的头进内存，再调用GetBitByPEHeader去判断
+*  返回结果 :  返回当前进程位数
 *
 *******************************************************************************/
 ULONG   GetBitByPEHeader(__in_bcount(uSize) CONST PVOID pPE,
                          __in CONST ULONG uSize)
 {
-        // ����ͨ��IMAGE_NT_OPTIONAL_HDR_MAGIC���ж�
+        // 可以通过IMAGE_NT_OPTIONAL_HDR_MAGIC来判断
         return  0 ;
 }
 
 /*******************************************************************************
 *
-*   �� �� �� : VolumeDeviceToNtPath
-*  �������� :�߼�·��ת����NT·��
-*  �����б� : lpszDevicePath  --    �߼�·��
-*                   lpszFilePath  --          NT·��
-*   ˵      �� : ����΢����ʾ������.....�ұ�ʾ�е�������������ɣ�
-*  ���ؽ�� :  ִ�гɹ�������TRUE
+*   函 数 名 : VolumeDeviceToNtPath
+*  功能描述 :逻辑路径转化成NT路径
+*  参数列表 : lpszDevicePath  --    逻辑路径
+*                   lpszFilePath  --          NT路径
+*   说      明 : 哎，微软的示例代码.....我表示有点无语，就先这样吧！
+*  返回结果 :  执行成功，返回TRUE
 *
 *******************************************************************************/
 BOOL VolumeDeviceToNtPath(__in_z LPCTSTR lpszDevicePath,
