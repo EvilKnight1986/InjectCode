@@ -19,6 +19,7 @@
 #include "EnvironmentInformation.h"
 #include "ErrorInformation.h"
 #include "ProcessInformation.h"
+#include <tchar.h>
 
 
 /*******************************************************************************
@@ -34,23 +35,129 @@
 BOOL Inject(__in CONST DWORD dwPID, 
                         __in_z CONST PTCHAR pDllPath)
 {
-        // 这里要判断系统、自身程序与目标程序以及dll的位数
-        // 判断自身的位数与要注入的dll是否有目标进程一致
+        BOOL bResult(FALSE) ;
+        HANDLE hProcess(NULL),
+                       hThread(NULL);
 
-        // 打开目标进程
+        SIZE_T uSize(0) ;
+        LPVOID   pAddr(NULL) ;
 
-        // 向目标进程申请内存
+        if (0 == dwPID || NULL == pDllPath)
+        {
+                OutputDebugString(TEXT("Inject argv error!\r\n")) ;
+                return FALSE ;
+        }
 
-        // 写入dll路径
+        __try
+        {
+                ULONG   uMySelfBit(0),
+                                uDestProcessBit(0),
+                                uDestDllBit(0) ;
 
-        // 创建远程线程
-        // 等待线程结束
+                // 先取得Dll的位数，因为无论是32位进程还是64位进程，都是要取的
+                uDestDllBit = GetPEFileBit(pDllPath) ;
+                uDestDllBit = 32 ;
+                if (0 == uDestDllBit)
+                {
+                        OutputDebugString(TEXT("Inject::GetPEFileBit failed")) ;
+                        __leave ;
+                }
 
-        // 释放内存
+                // 这里要判断系统、自身程序与目标程序以及dll的位数
+                if (MACHINE64 == GetOSBit())
+                {
+                        uDestProcessBit = GetProcessBit(dwPID) ;
+                        uMySelfBit = GetMyselfBit() ;
+                        // 自身程序、目标进程、与dll位数要一致
+                        if (uMySelfBit != uDestProcessBit
+                                || uDestProcessBit != uDestDllBit)
+                        {
+                                OutputDebugString(TEXT("Process do not match the bits!\r\n")) ;
+                                __leave ;
+                        }
+                }
+                else
+                {
+                        if (MACHINE32 != uDestDllBit)
+                        {
+                                OutputDebugString(TEXT("Process do not match the bits!\r\n")) ;
+                                __leave ;
+                        }
+                }
 
-        // 关闭进程句柄
+                // 打开目标进程
+                hProcess = OpenProcess(PROCESS_ALL_ACCESS,
+                                                        FALSE,
+                                                        dwPID) ;
+                if (NULL == hProcess)
+                {
+                        OutputErrorInformation(TEXT("Inject"), TEXT("OpenProcess")) ;
+                        __leave ;
+                }
+
+                // 计算需要向目标进程写入dll路径所需的内存大小
+                uSize = (_tcslen(pDllPath) + 1) * sizeof(TCHAR) ;
+
+                if (0 == uSize)
+                {
+                        OutputDebugString(TEXT("Inject uSize can't zero!\r\n")) ;
+                        __leave ;
+                }
+                // 向目标进程申请内存
+                pAddr = VirtualAllocEx(hProcess, NULL, uSize, MEM_COMMIT,PAGE_READWRITE) ;
+                if(NULL == pAddr)
+                {
+                        OutputErrorInformation(TEXT("Inject"), TEXT("VittualAllocEx")) ;
+                        __leave ;
+                }
+
+                // 写入dll路径
+                SIZE_T uWritedSize(0) ;
+                if (! WriteProcessMemory(hProcess, pAddr, pDllPath, uSize, &uWritedSize)
+                        || 0 == uWritedSize)
+                {
+                        OutputErrorInformation(TEXT("Inject"), TEXT("WriteProcessMemory")) ;
+                        __leave ;
+                }
+
+                // 创建远程线程
+                hThread = CreateRemoteThread(hProcess, 
+                                                                                        NULL,
+                                                                                        0,
+                                                                                        (LPTHREAD_START_ROUTINE)LoadLibrary,
+                                                                                        pAddr,
+                                                                                        0,
+                                                                                        NULL) ;
+
+                // 等待线程结束
+                WaitForSingleObject(hThread, INFINITE) ;
+
+                // 这里可以获得Dll加载的基础
+                // 我们这里就先不取了
+                // GetExitCodeThread(hThread, ) ;
+
+                bResult = TRUE ;
+        }
+        __finally
+        {
+                if (NULL != hThread)
+                {
+                        CloseHandle(hThread) ;
+                        hThread = NULL ;
+                }
+                if (NULL != pAddr)
+                {
+                        VirtualFreeEx(hProcess, pAddr, uSize, MEM_DECOMMIT) ;
+                        pAddr = NULL ;
+                }
+                if (NULL != hProcess)
+                {
+                        CloseHandle(hProcess) ;
+                        hProcess = NULL ;
+                }
+        }
   
-        return TRUE ;
+        return bResult ;
 }
 
 // 将dll注入到指定进程名的进程中
