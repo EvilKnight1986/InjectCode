@@ -85,7 +85,7 @@ BOOL Inject(__in CONST DWORD dwPID,
                 }
 
                 // 打开目标进程
-                hProcess = OpenProcess(PROCESS_ALL_ACCESS,
+                hProcess = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_VM_WRITE | PROCESS_VM_OPERATION,
                                                         FALSE,
                                                         dwPID) ;
                 if (NULL == hProcess)
