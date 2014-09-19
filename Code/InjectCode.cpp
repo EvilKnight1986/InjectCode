@@ -56,7 +56,6 @@ BOOL Inject(__in CONST DWORD dwPID,
 
                 // 先取得Dll的位数，因为无论是32位进程还是64位进程，都是要取的
                 uDestDllBit = GetPEFileBit(pDllPath) ;
-                uDestDllBit = 32 ;
                 if (0 == uDestDllBit)
                 {
                         OutputDebugString(TEXT("Inject::GetPEFileBit failed")) ;

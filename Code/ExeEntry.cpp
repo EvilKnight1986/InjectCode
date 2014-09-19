@@ -54,15 +54,21 @@
 #include <stdio.h>
 #include <Windows.h>
 
+// ¥ø≤‚ ‘”√µƒ
 int main(void)
 {
-        ULONG uOSBit = GetOSBit() ;
-        ULONG uProcessBit = GetProcessBit(3088) ;
-
-        if (Inject(TEXT("svchost.exe"), TEXT("d:\\hook.dll")))
+#ifdef _WIN64
+        ShellExecute(NULL, TEXT("open"), TEXT("notepad"), NULL, NULL,SW_MINIMIZE) ;
+        if (Inject(TEXT("notepad.exe"), TEXT("D:\\Project\\HookDll_x64.dll")))
         {
                 printf ("Inject Success! \r\n") ;
         }
+#else
+        if (Inject(TEXT("TTplayer.exe"), TEXT("D:\\Project\\HookDll_x86.dll")))
+        {
+                printf ("Inject Success! \r\n") ;
+        }
+#endif
         return 0 ;
 }
 

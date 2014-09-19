@@ -18,6 +18,9 @@
 #ifndef ENVIRONMENTINFORMATION__H
 #define ENVIRONMENTINFORMATION__H
 
+#define MACHINE64      (64)
+#define MACHINE32      (32)
+
 #include <Windows.h>
 
 // 取得操作系统位数
