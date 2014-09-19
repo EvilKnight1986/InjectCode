@@ -21,7 +21,9 @@
 #include <Psapi.h>
 #include <tchar.h>
 #include <strsafe.h>
+#include <shlwapi.h>
 #pragma comment(lib, "psapi.lib")
+#pragma comment(lib, "shlwapi.lib")
 
 typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 
@@ -80,16 +82,16 @@ ULONG   GetProcessBit(__in CONST DWORD dwPID)
                 }
 
                 // 可以调用IsWow64Process
-                //if (NULL != fnIsWow64Process)
-                //{
-                //        // 如果成功了，闪人
-                //        if (fnIsWow64Process(hProcess, &bIsWow64))
-                //        {
-                //                // 如果bIsWow64等于TRUE的话，说明运行在WOW64下，为32位
-                //                uResult = bIsWow64 ? 32:64 ;
-                //                __leave ;
-                //        }
-                //}
+                if (NULL != fnIsWow64Process)
+                {
+                        // 如果成功了，闪人
+                        if (fnIsWow64Process(hProcess, &bIsWow64))
+                        {
+                                // 如果bIsWow64等于TRUE的话，说明运行在WOW64下，为32位
+                                uResult = bIsWow64 ? 32:64 ;
+                                __leave ;
+                        }
+                }
 
                 // 或GetProcessImageFileName
                 // QueryFullProcessImageName只支持vista以及之后的系统
@@ -142,7 +144,86 @@ ULONG   GetMyselfBit(VOID)
 *******************************************************************************/
 ULONG   GetPEFileBit(__in_z CONST PTCHAR pPEFilePath)
 {
-        return 0 ;
+        ULONG uResult(0) ;
+        HANDLE hFile(INVALID_HANDLE_VALUE) ;
+        HANDLE hFileMap(NULL) ;
+        LPVOID pAddr(NULL) ;
+
+        __try
+        {
+                if (NULL == pPEFilePath)
+                {
+                        OutputDebugString(TEXT("GetPEFileBit pPEFilePath can't NULL!\r\n")) ;
+                        __leave ;
+                }
+                
+                if(FALSE == PathFileExists(pPEFilePath))
+                {
+                        OutputDebugString(TEXT("The file does not exist!\r\n")) ;
+                        __leave ;
+                }
+
+                hFile = CreateFile(pPEFilePath, 
+                                             GENERIC_READ,
+                                             FILE_SHARE_READ,
+                                             NULL,
+                                             OPEN_EXISTING,
+                                             FILE_ATTRIBUTE_NORMAL,
+                                             NULL) ;
+                if (INVALID_HANDLE_VALUE == hFile)
+                {
+                        OutputErrorInformation(TEXT("GetPEFileBit"), TEXT("CreateFile")) ;
+                        __leave ;
+                }
+
+                hFileMap = CreateFileMapping(hFile,
+                                                                     NULL,
+                                                                     PAGE_READONLY,
+                                                                     0,
+                                                                     0,
+                                                                     NULL) ;
+                if (NULL == hFile)
+                {
+                        OutputErrorInformation(TEXT("GetPEFileBit"), TEXT("CreateFileMapping")) ;
+                        __leave ;
+                }
+
+                pAddr = MapViewOfFile(hFileMap,
+                                                        FILE_MAP_READ,
+                                                        0,
+                                                        0,
+                                                        0) ;
+
+                if (NULL == pAddr)
+                {
+                        OutputErrorInformation(TEXT("GetPEFileBit"), TEXT("MapViewOfFile")) ;
+                        __leave ;
+                }
+
+                uResult = GetBitByPEHeader(pAddr, GetFileSize(hFile, NULL)) ;
+        }
+
+        __finally
+        {
+                if (NULL != pAddr)
+                {
+                        UnmapViewOfFile(pAddr) ;
+                        pAddr = NULL ;
+                }
+
+                if (NULL != hFileMap)
+                {
+                        CloseHandle(hFileMap) ;
+                        hFileMap = NULL ;
+                }
+
+                if (INVALID_HANDLE_VALUE != hFile)
+                {
+                        CloseHandle(hFile) ;
+                        hFile = INVALID_HANDLE_VALUE ;
+                }
+        }
+        return uResult ;
 }
 
 /*******************************************************************************
@@ -158,8 +239,55 @@ ULONG   GetPEFileBit(__in_z CONST PTCHAR pPEFilePath)
 ULONG   GetBitByPEHeader(__in_bcount(uSize) CONST PVOID pPE,
                          __in CONST ULONG uSize)
 {
+        ULONG uHeadSize(0) ;
+        ULONG uResult(0) ;
+
         // 可以通过IMAGE_NT_OPTIONAL_HDR_MAGIC来判断
-        return  0 ;
+        if (NULL == pPE)
+        {
+                return  0;
+        }
+
+        __try
+        {
+                PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)pPE ;
+                if (IMAGE_DOS_SIGNATURE != pDosHeader->e_magic)
+                {
+                        OutputDebugString(TEXT("Is not a valid PE file\r\n")) ;
+                        __leave ;
+                }
+
+                // 这里计算出来要取得pe文件位数最少需要读取文件头多长字节
+                uHeadSize = pDosHeader->e_lfanew ;  // 这里是IMAGE_NT_HEADERS
+                uHeadSize += sizeof(DWORD) ;
+                uHeadSize += sizeof(IMAGE_FILE_HEADER) ;
+
+                if (uSize < uHeadSize)
+                {
+                        OutputDebugString(TEXT("GetBitByPEHeader The memory is too small!\r\n")) ;
+                        __leave ;
+                }
+
+                uHeadSize = (ULONG)pPE + pDosHeader->e_lfanew ;
+                PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)uHeadSize ;
+                switch(pNtHeaders->FileHeader.Machine)
+                {
+                case IMAGE_FILE_MACHINE_I386:
+                        uResult =  MACHINE32 ;
+                        break ;
+                case IMAGE_FILE_MACHINE_IA64:
+                case IMAGE_FILE_MACHINE_AMD64:
+                        uResult =  MACHINE64 ;
+                        break ;
+                }
+        }
+        __except(EXCEPTION_EXECUTE_HANDLER)
+        {
+                // 这里可以输出异常信息
+                // GetExceptionCode()
+        }
+
+        return uResult ;
 }
 
 /*******************************************************************************
