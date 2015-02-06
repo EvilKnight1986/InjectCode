@@ -64,7 +64,7 @@ int main(void)
                 printf ("Inject Success! \r\n") ;
         }
 #else
-        if (Inject(TEXT("TTplayer.exe"), TEXT("D:\\Project\\HookDll_x86.dll")))
+        if (Inject(TEXT("QQ.exe"), TEXT("D:\\Projects\\GetQQIP\\Debug\\GetQQIP.dll")))
         {
                 printf ("Inject Success! \r\n") ;
         }
